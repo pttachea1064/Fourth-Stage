@@ -1,0 +1,27 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848     #默认的注册地址，可以不写
+        ephemeral: false
+    sentinel:
+      transport:
+        dashboard: localhost:8080
+        port: 8722
+dubbo:
+  protocol:
+    port: -1
+    name: dubbo
+  registry:
+    address: nacos://localhost:8848
+  consumer:
+    check: false
+
+#配置seata
+seata:
+  tx-service-group: csmall_group  #定义一个事务分组名称，一般是为了区分项目
+  service:
+    vgroup-mapping:
+      csmall_group: default #csmall_group组使用默认的seata配置完成事务
+    grouplist:
+      default: localhost:8091 #设置Seata所在的地址(默认端口号就是8091)

@@ -1,0 +1,50 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        dashboard: localhost:8080
+      scg:
+        fallback:
+          mode: response
+          response-body: "{code:'2023',message:'limit limit'}"
+    #配置gateway的信息
+    gateway:
+      discovery:
+        locator:
+          #默认情况下gateway不开启动态路由，通过enabled: true开启动态路径
+          #路由的规则：就是将nacos中对应的微服务的应用名称映射为访问子路径
+          #开启动态路由后，需要注意网关项目最后启动。因为自动映射不支持后加入到Nacos的项目
+          enabled: true
+      routes: #routes显然是一个数组，yml中以"- ..."表示当前匹配的是数组元素
+        - id: gateway-beijing #id要唯一，叫什么自定义
+          uri: lb://beijing #将来要转发的路径,lb是loadbalance的缩写，就是实现负载均衡的策略
+          #          filters:
+          #            - AddRequestParameter=age,60  #在请求中添加一个请求参数
+          #            - AddRequestHeader=request-color,red
+          #            - Log=false,true
+          predicates:
+            - Path=/bj/**   #如果请求路径是bj开头的，子路径随意，就是断言为真可以进行路径转发，匹配的就是uri
+        #            - Age=14,60
+        #            - Before=2023-10-15T21:29:04.884+08:00[Asia/Shanghai]
+        #            - After=2023-10-15T21:31:04.884+08:00[Asia/Shanghai]
+        #            - Between=2023-10-15T21:31:04.884+08:00[Asia/Shanghai],2023-10-15T21:33:04.884+08:00[Asia/Shanghai]
+        #            - Query=name,tony|tom
+        #            - Method=POST,GET
+        #          - Cookie=cust_cookie,value
+        #          - Header=Request-color,red
+        #spring.cloud.gateway.routes[0].id=gateway-beijing
+
+  #        - id: gateway-shanghai
+  #          uri: lb://shanghai   #shanghai是的gateway-shanghai项目向Nacos中注册的服务名称
+  #          predicates:
+  #            - Path=/sh/**
+  main:
+    web-application-type: reactive  #tomcat执行

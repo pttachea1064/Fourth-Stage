@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.tedu.csmallsso.mapper.AdminMapper">
+    <!--寫一個SQL去方便查詢內容-->
+    <sql id="QueryFieldsSample">
+        <if test="true">
+            id,username,nickname,phone,email,enable
+        </if>
+    </sql>
+
+
+    <!--1.添加管理员-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into ams_admin(
+            username,
+            password,
+            nickname,
+            avatar,
+            phone,
+            email,
+            description,
+            enable,
+            last_login_ip,
+            login_count,
+            gmt_last_login,
+            gmt_create,
+            gmt_modified
+        ) VALUES(
+                    #{username},
+                    #{password},
+                    #{nickname},
+                    #{avatar},
+                    #{phone},
+                    #{email},
+                    #{description},
+                    #{enable},
+                    #{lastLoginIp},
+                    #{loginCount},
+                    #{gmtLastLogin},
+                    #{gmtCreate},
+                    #{gmtModified}
+                )
+    </insert>
+    <!--2.根据用户名查看该用户是否存在-->
+    <select id="selectAdminByUserName" resultType="int">
+        select count(*) from ams_admin where username=#{username}
+    </select>
+
+    <!--3.查询管理列表-->
+    <select id="listAdmins" resultType="cn.tedu.csmall.commons.pojo.admin.vo.AdminListVO">
+        select <include refid="QueryFieldsSample"/> from ams_admin
+    </select>
+
+    <!--4.根据用户名查询用户名和密码
+     AdminLoginVO -->
+    <select id="getUserByUserName" resultMap="LoginResultMap">
+        select
+            ams_admin.id,
+            ams_admin.username,
+            ams_admin.password,
+            ams_admin.enable,
+            ams_permission.value
+        from
+            ams_admin
+                LEFT JOIN ams_admin_role ON ams_admin.id=ams_admin_role.admin_id
+                LEFT JOIN ams_role On ams_admin_role.role_id=ams_role.id
+                LEFT JOIN ams_role_permission ON ams_role.id=ams_role_permission.role_id
+                LEFT JOIN ams_permission ON ams_role_permission.permission_id=ams_permission.id
+        where
+            username=#{username}
+    </select>
+    <!--一对多的关系，需要映射-->
+    <resultMap id="LoginResultMap" type="cn.tedu.csmall.commons.pojo.admin.vo.AdminLoginVO">
+        <id column="id" property="id"></id>
+        <result column="username" property="username"></result>
+        <result column="password" property="password"></result>
+        <result column="enable" property="enable"></result>
+        <!--collection一對多的關聯關係指定-->
+        <collection property="permissions" ofType="java.lang.String">
+            <constructor>
+                <arg column="value"></arg>
+            </constructor>
+        </collection>
+    </resultMap>
+
+</mapper>

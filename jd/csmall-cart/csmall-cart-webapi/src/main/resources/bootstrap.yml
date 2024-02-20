@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        #指定配置中心的地址
+        server-addr: localhost:8848
+        #指定命名空间，如果不指定默认是public
+        #        namespace: PUBLIC
+        #指定分组，默认是DEFAULT_GROUP
+        #        group: DEFAULT_GROUP
+        #指定该项目读取的配置文件
+        #默认读取文件的格式：[服务名称].[文件类型]
+        #        prefix: cart   #文件的名称
+        file-extension: yaml  #文件的后缀
+
+        #读取配置中心中的命名空间为PUBLIC的，分组是DEFAULT_GROUP的cart.yaml的配置文件
+        refresh-enabled: true   #开启配置动态刷新
+        shared-configs:
+          - data-id: cart.yaml   #也可以写成dataId
+            refresh: true #强制配置动态刷新
